@@ -1,18 +1,10 @@
-/*
-@title: getting_started
-@tags: ['beginner', 'tutorial']
-@addedOn: 2022-07-26
-@author: leo, edits: samliu, belle, kara
-
-Check the tutorial in the bottom right, the run button is in the top right.
-Make sure to remix this tutorial if you want to save your progress!
-*/
-
 // define the sprites in our game
 const player = "p";
-const box = "b";
+const egg = "e";
 const goal = "g";
-const wall = "w";
+const bones = "o";
+const shrubs = "s";
+const dirt = "d";
 
 const myTune = tune`
 500: B4~500,
@@ -37,7 +29,7 @@ setLegend(
 ................
 ................
 ................`],
-  [ box, bitmap`
+  [ egg, bitmap`
 ................
 .......00.......
 ......0220......
@@ -71,7 +63,7 @@ setLegend(
 ................
 ................
 ................`],
-  [ wall, bitmap`
+  [ bones, bitmap`
 CCCCCCCCCCCCCCCC
 CCC22222CCCCCCCC
 CC2222222CCCC2CC
@@ -87,6 +79,40 @@ CCCCCCCCCCC22CCC
 CCCCCCCCCC22CCCC
 CCCCCCCCC22CCCCC
 CCCCCCCCCC2CCCCC
+CCCCCCCCCCCCCCCC`],
+  [ shrubs, bitmap`
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCC4CC
+CCCCCCCC4C4C44CC
+CCCCCCCCC44C444C
+CCCCCCC444444444
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+C4CCCCCCCCCCCCCC
+C4C4C4CCCCCCCCCC
+44C4444CCCCCCCC4
+44444444CCCCCC44
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC`],
+  [ dirt, bitmap`
+CCCCCCCCCCCCCCCC
+CCCLLCCCCCCCCCCC
+CCCCCLLCCCCCCCLC
+CCCCCCCCCCLLCCCC
+CCCCCCCCCCLCCCCC
+CCCLLCCCCCCCCCCC
+CCCCCLCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCC
+CCLLCCCCCCLCCCCC
+CCCCLLCCCCCLLCCC
+CCCCCCCCCCCCLCCC
+CCCCCCLCCCCCCLCC
+CCCCLLCCCCCCCLCC
+CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC`]
 );
 
@@ -95,26 +121,22 @@ let level = 0; // this tracks the level we are on
 const levels = [
   map`
 ..p.
-.b.g
+.e.g
 ....`,
   map`
 p..
-.b.
+.e.
 ..g`,
   map`
-p..g
-.bw.
-..w.
-..w.`,
-  map`
 p...
-...b
-...b
-.bbg`,
+.o.d
+.e..
+s..g`,
   map`
-...
-.p.
-...`,
+g.e.
+.p..
+sss.
+ge.p`,
   map`
 p.w.
 .bwg
@@ -126,32 +148,32 @@ p.w.
 const currentLevel = levels[level];
 setMap(currentLevel);
 
-setSolids([ player, box, wall ]); // other sprites cannot go inside of these sprites
+setSolids([ player, egg, bones, shrubs, dirt ]); // other sprites cannot go inside of these sprites
 
 // allow certain sprites to push certain other sprites
 setPushables({
-  [player]: [box],
-  [box]: [box]
+  [player]: [egg],
+  [egg]: [egg]
 });
 
 // inputs for player movement control
 onInput("s", () => {
-  getFirst(player).y += 1; // positive y is downwards
+  getAll(player).forEach((sprite) => {sprite.y += 1});
   playTune(myTune);
 });
 
 onInput("d", () => {
-  getFirst(player).x += 1;
+  getAll(player).forEach((sprite) => {sprite.x += 1});
   playTune(myTune);
 });
 
 onInput("w", () => {
-  getFirst(player).y -= 1;
+  getAll(player).forEach((sprite) => {sprite.y -= 1});
   playTune(myTune);
 });
 
 onInput("a", () => {
-  getFirst(player).x -= 1;
+  getAll(player).forEach((sprite) => {sprite.x -= 1});
   playTune(myTune);
 });
 // input to reset level
@@ -170,8 +192,8 @@ afterInput(() => {
   // count the number of tiles with goals
   const targetNumber = tilesWith(goal).length;
   
-  // count the number of tiles with goals and boxes
-  const numberCovered = tilesWith(goal, box).length;
+  // count the number of tiles with goals and eggs
+  const numberCovered = tilesWith(goal, egg).length;
 
   // if the number of goals is the same as the number of goals covered
   // all goals are covered and we can go to the next level
@@ -188,7 +210,9 @@ afterInput(() => {
     if (currentLevel !== undefined) {
       setMap(currentLevel);
     } else {
-      addText("you win!", { y: 4, color: color`3` });
+      addText("you win!", { y: 4, color: color`6` });
+      setTimeout(() => {}, 2000);
+      currentlevel = levels[0];
     }
   }
 });
