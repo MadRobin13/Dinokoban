@@ -6,9 +6,21 @@ const bones = "o";
 const shrubs = "s";
 const dirt = "d";
 
-const myTune = tune`
-500: B4~500,
+const stomp = tune`
+500: A4-500,
 15500`;
+const roar = tune`
+75.56675062972292: G4^75.56675062972292 + C4^75.56675062972292,
+75.56675062972292: C4^75.56675062972292 + A4^75.56675062972292 + B4^75.56675062972292 + D4/75.56675062972292,
+75.56675062972292: C4^75.56675062972292 + E4^75.56675062972292 + C5^75.56675062972292 + D4/75.56675062972292 + G4-75.56675062972292,
+75.56675062972292: C4^75.56675062972292 + A4/75.56675062972292 + D4/75.56675062972292 + G4-75.56675062972292,
+75.56675062972292: C4^75.56675062972292 + D4/75.56675062972292 + G4-75.56675062972292 + G5-75.56675062972292,
+75.56675062972292: C4^75.56675062972292 + C5^75.56675062972292 + D4/75.56675062972292,
+75.56675062972292: C4~75.56675062972292,
+1889.168765743073`;
+const success = tune`
+16000`;
+const victory = tune``;
 
 // assign bitmap art to each sprite
 setLegend(
@@ -138,10 +150,10 @@ g.e.
 sss.
 ge.p`,
   map`
-p.w.
-.bwg
-....
-..bg`
+p...
+.e.g
+.ooo
+p.eg`
 ];
 
 // set the map displayed to the current level
@@ -159,22 +171,22 @@ setPushables({
 // inputs for player movement control
 onInput("s", () => {
   getAll(player).forEach((sprite) => {sprite.y += 1});
-  playTune(myTune);
+  playTune(stomp);
 });
 
 onInput("d", () => {
   getAll(player).forEach((sprite) => {sprite.x += 1});
-  playTune(myTune);
+  playTune(stomp);
 });
 
 onInput("w", () => {
   getAll(player).forEach((sprite) => {sprite.y -= 1});
-  playTune(myTune);
+  playTune(stomp);
 });
 
 onInput("a", () => {
   getAll(player).forEach((sprite) => {sprite.x -= 1});
-  playTune(myTune);
+  playTune(stomp);
 });
 // input to reset level
 onInput("j", () => {
@@ -186,6 +198,12 @@ onInput("j", () => {
     setMap(currentLevel);
   }
 });
+
+onInput("k", () => {
+  playTune(roar);
+});
+onInput("l", () => {});
+
 
 // these get run after every input
 afterInput(() => {
@@ -201,7 +219,7 @@ afterInput(() => {
     // increase the current level number
     
     level = level + 1;
-
+    playTune(success);
     const currentLevel = levels[level];
 
     // make sure the level exists and if so set the map
@@ -210,9 +228,13 @@ afterInput(() => {
     if (currentLevel !== undefined) {
       setMap(currentLevel);
     } else {
-      addText("you win!", { y: 4, color: color`6` });
-      setTimeout(() => {}, 2000);
-      currentlevel = levels[0];
+        addText("you win!", {color: color`6` });
+        addText("\nPress i to restart", {color: color`6` });
+      playTune(victory);
+        onInput("i", () => {
+          clearText();
+          setMap(levels[0]);
+        });
     }
   }
 });
