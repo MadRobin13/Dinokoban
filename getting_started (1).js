@@ -1,3 +1,4 @@
+// define the sprites in our game
 const player = "p";
 const egg = "e";
 const goal = "g";
@@ -38,6 +39,7 @@ const restart = tune`
 125.52301255230125: C5^125.52301255230125,
 3765.6903765690377`;
 
+// assign bitmap art to each sprite
 setLegend(
   [ player, bitmap`
 ....0000000.....
@@ -143,7 +145,8 @@ CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC`]
 );
 
-let level = 0;
+// create game levels
+let level = 0; // this tracks the level we are on
 const levels = [
   map`
 ...
@@ -174,17 +177,19 @@ p....
 p..eg`
 ];
 
+// set the map displayed to the current level
 const currentLevel = levels[level];
-addText("Dinokoban!", {y:3,  color:color`6`});
 setMap(currentLevel);
 
-setSolids([ player, egg, bones, shrubs, dirt ]);
+setSolids([ player, egg, bones, shrubs, dirt ]); // other sprites cannot go inside of these sprites
 
+// allow certain sprites to push certain other sprites
 setPushables({
   [player]: [egg],
   [egg]: [egg]
 });
 
+// inputs for player movement control
 onInput("s", () => {
   getAll(player).forEach((sprite) => {sprite.y += 1});
   playTune(stomp);
@@ -204,9 +209,11 @@ onInput("a", () => {
   getAll(player).forEach((sprite) => {sprite.x -= 1});
   playTune(stomp);
 });
+// input to reset level
 onInput("j", () => {
-  let currentLevel = levels[level];
+  let currentLevel = levels[level]; // get the original map of the level
 
+  // make sure the level exists before we load it
   if (currentLevel !== undefined) {
     clearText("");
     setMap(currentLevel);
@@ -217,23 +224,25 @@ onInput("k", () => {
   playTune(roar);
 });
 onInput("l", () => {
-  setMap(homeScreen);
+  level = 0;
+  const currentLevel = levels[level];
+  setMap(currentLevel);
 });
 
 
+// these get run after every input
 afterInput(() => {
+  // count the number of tiles with goals
   const targetNumber = tilesWith(goal).length;
   
+  // count the number of tiles with goals and eggs
   const numberCovered = tilesWith(goal, egg).length;
-
-  if (currentLevel === levels[0]) {
-    addText("Dinokoban!", {y:3,  color:color`6`});
-  }
-  if (currentLevel !== levels[0] && currentLevel !== undefined) {
-    clearText();
-  }
   
+
+  // if the number of goals is the same as the number of goals covered
+  // all goals are covered and we can go to the next level
   if (numberCovered === targetNumber) {
+    // increase the current level number
     
     level = level + 1;
     
@@ -241,6 +250,9 @@ afterInput(() => {
     const currentLevel = levels[level];
 
     
+    // make sure the level exists and if so set the map
+    // otherwise, we have finished the last level, there is no level
+    // after the last level
     if (currentLevel !== undefined) {
       setMap(currentLevel);
     } else {
@@ -250,7 +262,7 @@ afterInput(() => {
         onInput("i", () => {
           playTune(restart);
           clearText();
-          level = 0;
+          level = 1;
           const currentLevel = levels[level];
           setMap(currentLevel);
         });
