@@ -1,4 +1,3 @@
-// define the sprites in our game
 const player = "p";
 const egg = "e";
 const goal = "g";
@@ -39,9 +38,8 @@ const restart = tune`
 125.52301255230125: C5^125.52301255230125,
 3765.6903765690377`;
 
-// assign bitmap art to each sprite
 setLegend(
-  [player, bitmap`
+  [ player, bitmap`
 ....0000000.....
 ...033333330....
 ...033033000....
@@ -58,7 +56,7 @@ setLegend(
 ................
 ................
 ................`],
-  [egg, bitmap`
+  [ egg, bitmap`
 ................
 .......00.......
 ......0220......
@@ -75,7 +73,7 @@ setLegend(
 .....022220.....
 ......0000......
 ................`],
-  [goal, bitmap`
+  [ goal, bitmap`
 ................
 ................
 ......00000.....
@@ -92,7 +90,7 @@ setLegend(
 ................
 ................
 ................`],
-  [bones, bitmap`
+  [ bones, bitmap`
 CCCCCCCCCCCCCCCC
 CCC22222CCCCCCCC
 CC2222222CCCC2CC
@@ -109,7 +107,7 @@ CCCCCCCCCC22CCCC
 CCCCCCCCC22CCCCC
 CCCCCCCCCC2CCCCC
 CCCCCCCCCCCCCCCC`],
-  [shrubs, bitmap`
+  [ shrubs, bitmap`
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCC4CC
 CCCCCCCC4C4C44CC
@@ -126,7 +124,7 @@ CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC`],
-  [dirt, bitmap`
+  [ dirt, bitmap`
 CCCCCCCCCCCCCCCC
 CCCLLCCCCCCCCCCC
 CCCCCLLCCCCCCCLC
@@ -145,15 +143,14 @@ CCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCC`]
 );
 
-// create game levels
-let level = 0; // this tracks the level we are on
+let level = 0;
 const levels = [
   map`
 ...
 peg
 ...`,
   map`
-p...
+..p.
 .e.g
 ....`,
   map`
@@ -177,44 +174,39 @@ p....
 p..eg`
 ];
 
-// set the map displayed to the current level
 const currentLevel = levels[level];
+addText("Dinokoban!", {y:3,  color:color`6`});
 setMap(currentLevel);
 
+setSolids([ player, egg, bones, shrubs, dirt ]);
 
-setSolids([player, egg, bones, shrubs, dirt]); // other sprites cannot go inside of these sprites
-
-// allow certain sprites to push certain other sprites
 setPushables({
   [player]: [egg],
   [egg]: [egg]
 });
 
-// inputs for player movement control
 onInput("s", () => {
-  getAll(player).forEach((sprite) => { sprite.y += 1 });
+  getAll(player).forEach((sprite) => {sprite.y += 1});
   playTune(stomp);
 });
 
 onInput("d", () => {
-  getAll(player).forEach((sprite) => { sprite.x += 1 });
+  getAll(player).forEach((sprite) => {sprite.x += 1});
   playTune(stomp);
 });
 
 onInput("w", () => {
-  getAll(player).forEach((sprite) => { sprite.y -= 1 });
+  getAll(player).forEach((sprite) => {sprite.y -= 1});
   playTune(stomp);
 });
 
 onInput("a", () => {
-  getAll(player).forEach((sprite) => { sprite.x -= 1 });
+  getAll(player).forEach((sprite) => {sprite.x -= 1});
   playTune(stomp);
 });
-// input to reset level
 onInput("j", () => {
-  let currentLevel = levels[level]; // get the original map of the level
+  let currentLevel = levels[level];
 
-  // make sure the level exists before we load it
   if (currentLevel !== undefined) {
     clearText("");
     setMap(currentLevel);
@@ -225,53 +217,43 @@ onInput("k", () => {
   playTune(roar);
 });
 onInput("l", () => {
-  level = 0;
-  const currentLevel = levels[level];
-  setMap(currentLevel);
+  setMap(homeScreen);
 });
 
 
-// these get run after every input
 afterInput(() => {
-  // count the number of tiles with goals
   const targetNumber = tilesWith(goal).length;
-
-  // count the number of tiles with goals and eggs
+  
   const numberCovered = tilesWith(goal, egg).length;
 
-
-  // if the number of goals is the same as the number of goals covered
-  // all goals are covered and we can go to the next level
+  if (currentLevel === levels[0]) {
+    addText("Dinokoban!", {y:3,  color:color`6`});
+  }
+  if (currentLevel !== levels[0] && currentLevel !== undefined) {
+    clearText();
+  }
+  
   if (numberCovered === targetNumber) {
-    // increase the current level number
-
+    
     level = level + 1;
-
+    
     if (level !== levels.length) playTune(success);
     const currentLevel = levels[level];
 
-
-    // make sure the level exists and if so set the map
-    // otherwise, we have finished the last level, there is no level
-    // after the last level
+    
     if (currentLevel !== undefined) {
       setMap(currentLevel);
     } else {
-      addText("you win!", { color: color`6` });
-      addText("\nPress i to restart", { color: color`6` });
-      playTune(victory);
-      onInput("i", () => {
-        playTune(restart);
-        clearText();
-        level = 1;
-        const currentLevel = levels[level];
-        setMap(currentLevel);
-      });
-    }
-
-
-    if (currentLevel !== levels[0] && currentLevel !== undefined) {
-      clearText();
+        addText("you win!", {color: color`6` });
+        addText("\nPress i to restart", {color: color`6` });
+        playTune(victory);
+        onInput("i", () => {
+          playTune(restart);
+          clearText();
+          level = 0;
+          const currentLevel = levels[level];
+          setMap(currentLevel);
+        });
     }
   }
 });
